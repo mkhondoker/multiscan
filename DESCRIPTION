@@ -1,0 +1,11 @@
+Package: multiscan
+Version: 1.1.0
+Title: R package for combining multiple scans
+Depends: R (>= 2.3.0)
+Imports: Biobase, utils
+biocViews: Microarray, Preprocessing
+Author: Mizanur Khondoker <mizanur.khondoker@ed.ac.uk>,Chris Glasbey <chris@bioss.ac.uk>,Bruce Worton <bruce.worton.ed.ac.uk>.
+Maintainer: Mizanur Khondoker <mizanur.khondoker@ed.ac.uk>
+Description: Estimates gene expressions from several laser scans of the same microarray
+License: GNU General Public License (version 2 or later)
+

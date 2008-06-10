@@ -1,0 +1,5 @@
+export(multiscan)
+import(Biobase,utils)
+useDynLib(multiscan)
+S3method(plot, multiscan)
+S3method(print, multiscan)

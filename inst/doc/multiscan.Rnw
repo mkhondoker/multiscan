@@ -1,0 +1,249 @@
+ %\VignetteDepends{utils}
+ %\VignetteIndexEntry{An R Package for Estimating Gene Expressions using Multiple Scans}
+ %\VignetteKeywords{Preprocessing}
+ %\VignetteKeywords{Gene expressions}
+ %\VignettePackage{multiscan}
+ 
+\documentclass[11pt]{article}
+
+\usepackage{epsfig,fullpage}
+\usepackage{graphicx}
+
+\usepackage{hyperref}
+
+
+\parindent 0in
+
+
+
+\begin{document}
+
+\title{\bf {\tt multiscan}: Combining multiple laser scans of microarrays} 
+
+
+ \author{Mizanur R.  Khondoker\footnote {Package maintainer, Email:
+ \texttt {Mizanur.Khondoker@ed.ac.uk}} \footnote{Division of Pathway Medicine, 
+ The University of Edinburgh Medical School, The Chancellor's Building, 
+ 49 Little France Crescent, Edinburgh EH16 4SB, UK.} \and Chris A.  Glasbey
+ \footnote{Biomathematics \& Statistics Scotland, King's Buildings,
+Edinburgh, EH9 3JZ, Scotland, UK.  Email:\texttt{chris@bioss.ac.uk.}}
+ \and Bruce J.  Worton \footnote {School of Mathematics, University of
+Edinburgh, King's Buildings, Edinburgh, EH9 3JZ, Scotland, UK.  Email:
+ \texttt {Bruce.Worton@ed.ac.uk.} }} 
+ 
+ \maketitle
+
+\tableofcontents
+
+
+\section{Introduction}
+
+The sensitivity level of microarray scanners is adjustable and plays 
+a crucial role in getting reliable measurement of the fluorescence intensity.
+A change in scanner setting transforms the intensity measurements by a 
+multiplicative constant. A scanner's sensitivity has to be raised to a certain 
+level to ensure that the intensity levels of weakly expressed genes exceed the intrinsic 
+noise level of the scanner and so become measurable. This may, however, cause another 
+problem: signal censoring for highly expressed genes. Scanners cannot record pixel 
+intensities above some software dependent threshold ($2^{16} - 1 = 65535$, for a 16-bit 
+computer storage system), so highly expressed genes can have pixel values which are right 
+censored at the largest possible value that the scanner software allows. It is not
+usually possible to find a scanner setting which is optimal for both weakly and highly 
+expressed genes. So, it seems reasonable to consider multiple scanning of the same microarray 
+at different scanner setting and estimate spot intensities from these combined data.\\
+
+The {\tt multiscan} package implements the method of Khondoker \emph{et al.} (2006)
+for estimating gene expressions from multiple laser scans of hybridised microarrays.
+The method is based on a non-linear functional regression model with both additive 
+and multiplicative error terms. Maximum likelihood estimation based on a Cauchy distribution 
+is used to fit the model, which reduces the sampling variability in expression estimates and 
+is able to estimate gene expressions taking account of outliers and the systematic bias caused by signal 
+censoring of highly expressed genes.\\
+
+
+The package contains a function {\tt multiscan}, and a small data set {\tt murine} for
+illustrating the use of the function. The function produces output of class {\tt multiscan}.
+S3 print and plot methods are also defined for this new class.\\ 
+
+After installation, the package can be loaded using
+
+<<eval=TRUE,echo=TRUE,results=hide>>=
+library(multiscan)
+@
+
+\section{Package documentation}
+
+\subsection{Help files}
+
+After installing and loading the package, the help file with detail  
+information of the {\tt multiscan} function, its usage, arguments and values, can be viewed by 
+issuing the command {\tt help(multiscan)} or {\tt ?multiscan} at the R command prompt.
+
+\subsection{Package vignettes}
+
+To view the package vignette (this document) you need to use
+<<eval=FALSE,echo=TRUE>>=
+vignette("multiscan")
+@
+and a PDF file will open in your PDF reader. For Windows, the package vignette can also be 
+accessed through the R menu bar item {\it Vignettes}.
+
+\section{Data}
+
+The only required argument for the {\tt multiscan} function is the {\tt data} argument
+which should be a numeric matrix or data frame containing the intensity data  of a single 
+microarray scanned at multiple (two or more) scanner settings. The data frame can be created by 
+reading text or csv files into R, using {\tt read.table} or {\tt read.csv} command. \\
+
+Number of rows ({\tt n}) of the data matrix should be equal to the number of spots/probes 
+on the array, and the number of columns ({\tt m}) equal to the number of scans. 
+Replicated probes on the array  are treated as individual spots. Columns can be given in
+any order, but will be arranged in order of scanner's sensitivity before fitting the model.
+The data should be on the raw scale, i.e., not transformed!\\
+
+An example data set, {\tt murine}, has been included as part of the package, which can be 
+loaded using
+
+<<eval=TRUE,echo=TRUE>>=
+data(murine)
+@
+
+and the first few rows of the data can be viewed by typing
+
+<<eval=TRUE,echo=TRUE>>=
+murine[1:10,]
+@
+
+To see a brief description of this example data use
+
+<<eval=FALSE,echo=TRUE>>=
+help(murine)
+@
+
+\section{Example usage of {\tt multiscan}} 
+
+Suppose that we want to obtain estimates of gene expressions combining the 4 scans of the 
+{\tt murine} data set. This can be done using
+
+<<>>=
+data(murine)
+fit<-multiscan(murine)
+fit
+@
+
+Two view the components of the fitted model use
+<<>>=
+str(fit)
+@
+
+The estimated gene expressions can be obtained by extracting the {\tt mu} component
+of the fitted object, i.e., by doing
+
+<<>>=
+gene.exprs<-fit$mu
+@
+
+A plot of the fitted model can be created by using the generic {\tt plot} function.
+For example, the plot in Figure~1 was produced using
+
+<<eval=FALSE,echo=TRUE>>=
+plot(fit)
+@
+
+\begin{figure}[p]
+\label{fig:fitted}
+  \begin{center}
+<<fitted,fig=TRUE,echo=FALSE>>=
+plot(fit)
+@
+ \caption{A plot of the rescaled intensities ($y_{ij}/\hat{\beta}_j$) against the estimated
+   gene expressions. The dotted lines represent the fitted model.}
+  \end{center}
+\end{figure}
+
+
+To view the description of the other optional arguments of the {\tt multiscan} function 
+please refer to the help file
+
+<<eval=FALSE,echo=TRUE>>=
+help(multiscan)
+@ 
+ 
+\section{Model diagnostics} 
+ 
+The standardised residuals of the fitted model on the input data is stored 
+in the {\tt sdres} component of the fitted {\tt multiscan} object. These residuals can be 
+extracted and plotted against the rank of the estimated expression values using 
+
+<<eval=FALSE,echo=TRUE>>=
+sdres<-fit$sdres
+mu<-fit$mu
+par(mfrow=c(2,2))
+for (i in 1:4){
+plot(rank(mu), sdres[,i], xlab="Rank of estimated gene expression", 
+ylab="Standardised residuals",main=paste("scan",i,sep=""), cex=0.8)
+abline(h=0, col="green")
+abline(h=-3, col="red", lty=3)
+abline(h=3, col="red", lty=3)}
+@
+
+\begin{figure}[p]
+\label{fig:sdres}
+  \begin{center}
+<<sdres,fig=TRUE,echo=FALSE>>=
+sdres<-fit$sdres
+mu<-fit$mu
+par(mfrow=c(2,2))
+for (i in 1:4){
+plot(rank(mu), sdres[,i], xlab="Rank of estimated gene expression", 
+ylab="Standardised residuals",main=paste("scan",i,sep=""), cex=0.8)
+abline(h=0, col="green")
+abline(h=-3, col="red", lty=3)
+abline(h=3, col="red", lty=3)}
+@
+   \caption{A plot of standardised residuals against the rank of estimated gene expressions. The dotted red lines shows the $\pm 3$ limits.}
+  \end{center}
+\end{figure}
+The resulting plot is shown in Figure~2.
+ 
+\clearpage 
+ 
+\section{Computing time and memory usage}
+
+The function is computationally slow and memory-intensive. That is due to the nested iteration loops 
+of the numerical optimisation of the likelihood function involving a large number ($n+m+2$) of parameters. 
+The optimisation uses an alternating algorithm with Nelder-Mead simplex (Nelder and Mead, 1965) in the inner loops. 
+The function {\tt multiscan} directly uses the C function {\tt nmmin}, the internal code used in the 
+general-purpose optimisation tool {\tt optim}, for implementing Nelder-Mead  simplex. 
+For large arrays with many tens of thousands of probes, it is recommended to consider a random 
+subset (10-15,000 rows) of the data matrix to fit an initial model, and then use the estimated scanning
+effects and scale parameters as initial values for fitting the model on the full data set.\\ 
+
+\section{Alternative software}
+
+A web interface, created by David Nutter of Biomathematics \& Statistics Scotland (BioSS), based on the original 
+Fortran code is available at {\tt http://www.bioss.ac.uk/ktshowcase/create.cgi}. Although based on the same algorithm,
+results from the web interface may not be exactly identical to that of {\tt multiscan} as it uses a different 
+(non-free IMSL routine) implementation of Nelder--Mead simplex. 
+ 
+\section{Acknowledgement}
+We thank Marc Carlson, my colleague Thorsten Forster, and the anonymous reviewers for 
+their useful comments on the earlier version of the package.   
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{References}
+
+\begin{description}
+
+  \item Khondoker, M. R., Glasbey, C. A. and Worton, B. J. (2006).
+  Statistical estimation of gene expression using multiple laser scans of microarrays.
+  \emph {Bioinformatics}, {\bf 22}, 215--219.
+
+  \item Nelder, J. A. and Mead, R. (1965). 
+  A simplex algorithm for function minimization. 
+  \emph{Computer Journal} {\bf 7}, 308--313.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
