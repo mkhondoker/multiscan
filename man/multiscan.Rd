@@ -5,8 +5,8 @@
 %## Author          : Mizanur Khondoker, Chris Glasbey, Bruce Worton
 %## Created On      : 2008-04-22 14:39
 %## Last Modified By: Mizanur Khondoker
-%## Last Modified On: 2008-06-07 16:52
-%## Update Count    : 8
+%## Last Modified On: 2008-06-21 20:57
+%## Update Count    : 12
 %###############################################################################
 %##
 %## Copyright (C) 2008 Mizanur Khondoker
@@ -30,7 +30,7 @@ multiscan(data, initial = NULL, na.rm = TRUE, verbose = FALSE, control = list())
  \item{data}{A numeric matrix or data frame containing the intensity data 
  of a single microarray scanned at multiple (two or more) scanner settings. For
 dual channel arrays, \code{multiscan} should be run on each channel of data separately.
- Number of rows (\code{n}) is equal to the number of spots/probes on the array, 
+The number of rows (\code{n}) is equal to the number of spots/probes on the array, 
  and the number of columns (\code{m}) equals the number of scans. Columns will be
  arranged in order of scanner's sensitivity before fitting the model. Replicated 
  probes on the array  are treated as individual spots.}
@@ -53,23 +53,24 @@ dual channel arrays, \code{multiscan} should be run on each channel of data sepa
   The function implements the method of Khondoker \emph{et. al.} (2006) 
   for combining multiple laser scans of microarrays. This function is 
   computationally slow and memory-intensive. That is due to the nested
-  iteration loops of the numerical optimisation of the likelihood
+  iteration loops of the numerical optimization of the likelihood
   function involving a large number ($n+m+2$) of parameters. The 
-  optimisation uses an alternating algorithm with Nelder-Mead simplex
-  (Nelder and Mead, 1965) in the inner loops. The function \code{multiscan}
+  optimization uses an alternating algorithm with the Nelder-Mead
+  simplex method (Nelder and Mead, 1965) in the inner loops. The function \code{multiscan}
   directly uses the C function \code{nmmin}, the internal code used in the 
-  general-purpose optimisation tool \code{\link{optim}}, for implementing Nelder-Mead
-  simplex. For large arrays with many tens of thousands of probes, it is recommended 
-  to consider a random subset (10-15,000 rows) of the data matrix to fit an initial model, 
-  and then use the estimated $\beta$ and scale parameters as initial values for fitting
-  the model on the full data set.  
+  general-purpose optimization tool \code{\link{optim}}, for
+  implementing the Nelder-Mead simplex method. For large data sets with many tens of thousands of probes, it
+  is recommended to consider first fitting the model using a random
+  subset (e.g. 10,000 rows) of the data matrix, and then using the 
+  estimated scanning effects and scale parameters obtained as initial
+  values for fitting the model to the full data set.
   
   The \code{control} is a list of arguments. The users can change/supply any of the
   following components:
   \describe{
     \item{\code{trace}}{Indicator (\code{0} or \code{1}) of tracing information of 
     Nelder-Mead algorithm. If \code{1}, tracing information on the progress of the 
-    optimisation is produced. Because Nelder-Mead may be callled thousands of times 
+    optimization is produced. Because Nelder-Mead may be callled thousands of times 
     during the estimation process, setting \code{trace = 1} will print too much 
     information very rapidly, which may not be useful. Defaults to \code{0}.}
     
@@ -116,14 +117,15 @@ dual channel arrays, \code{multiscan} should be run on each channel of data sepa
      \describe{
       \item{\code{gconv}}{Indicator of global convergence. \code{0} indicates successful convergence,
       \code{1} indicates premature termination.}
-      \item{\code{conv}}{Convergence codes for Nelder--Mead simplex in the last global iteration while 
+      \item{\code{conv}}{Convergence codes for the Nelder-Mead simplex method in the last global iteration while 
             updating scanning effects and scale parameters. \code{0} for successful convergence,
 	    \code{1} indicates that the iteration limit \code{maxit} had been reached, \code{10} 
-	     indicates degeneracy of the Nelder--Mead simplex.}
-	\item{\code{convmu}}{Convergence codes for Nelder--Mead simplex in the last global iteration while 
-            updating the gene expression parameters. This is an integer vector of length \code{n} where
+	     indicates degeneracy of the Nelder-Mead simplex method.}
+	   \item{\code{convmu}}{Convergence codes for the Nelder-Mead
+	     simplex method in the last global iteration while  updating
+	  the gene expression parameters. This is an integer vector of length \code{n} where
 	    each component takes the value \code{0}, \code{1}, or \code{10} depending on whether the 
-	    Nelder--Mead simplex successfully converged, reached iteration limit \code{maxit} or produced
+	    Nelder-Mead simplex method successfully converged, reached iteration limit \code{maxit} or produced
 	    degeneracy respectively while updating the corresponding gene expression parameter.}
 	      
 	}
@@ -139,20 +141,20 @@ dual channel arrays, \code{multiscan} should be run on each channel of data sepa
 \references{
   Khondoker, M. R., Glasbey, C. A. and Worton, B. J. (2006).
   Statistical estimation of gene expression using multiple laser scans of microarrays.
-  \emph{Bioinformatics}, \bold{22}, 215--219.
+  \emph{Bioinformatics} \bold{22}, 215--219.
 
   Nelder, J. A. and Mead, R. (1965). 
-  A simplex algorithm for function minimization. 
-  \emph{Computer Journal} \bold{7}, 308--313.
+  A simplex method for function minimization. 
+  \emph{The Computer Journal} \bold{7} 308--313.
  }
  
  \seealso{
  A web interface, created by David Nutter of Biomathematics & Statistics Scotland (BioSS), based on the original 
- Fortran code is available at http://www.bioss.ac.uk/ktshowcase/create.cgi. Results from the web interface may 
- not be exactly identical to that of \code{multiscan} as it uses a different (non-free IMSL routine) implementation 
- of Nelder--Mead simplex. 
- }
- 
+ Fortran code written by Khondoker \emph{et al.} (2006) is available at
+ http://www.bioss.ac.uk/ktshowcase/create.cgi. Although it uses the same algorithm,
+ results from the web interface may not be exactly identical to that of
+ \code{multiscan} as it uses a different (non-free IMSL routine) implementation of Nelder-Mead simplex.}
+
 
 \examples{
 

@@ -5,8 +5,8 @@
 %## Author          : Mizanur Khondoker, Chris Glasbey, Bruce Worton
 %## Created On      : 2008-04-22 14:39
 %## Last Modified By: Mizanur Khondoker
-%## Last Modified On: 2008-06-07 16:58
-%## Update Count    : 8
+%## Last Modified On: 2008-06-16 22:12
+%## Update Count    : 9
 %###############################################################################
 %##
 %## Copyright (C) 2008 Mizanur Khondoker
@@ -34,7 +34,7 @@ use of \code{multiscan} package.}
 \references{
   Khondoker, M. R., Glasbey, C. A. and Worton, B. J. (2006).
   Statistical estimation of gene expression using multiple laser scans of microarrays.
-  \emph{Bioinformatics}, \bold{22}, 215--219.
+  \emph{Bioinformatics} \bold{22}, 215--219.
 }
 
 \keyword{datasets}

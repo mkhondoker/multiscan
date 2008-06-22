@@ -5,8 +5,8 @@
 ## Author          : Mizanur Khondoker, Chris Glasbey, Bruce Worton
 ## Created On      : 2008-03-22 14:30
 ## Last Modified By: Mizanur Khondoker
-## Last Modified On: 2008-05-04 21:07
-## Update Count    : 4
+## Last Modified On: 2008-06-21 20:10
+## Update Count    : 8
 ################################################################################
 ##
 ## Copyright (C) 2008 Mizanur Khondoker
@@ -32,23 +32,47 @@
 ##
 ################################################################################
 
-plot.multiscan<-function(x,...)
+plot.multiscan<-function(x, residual=FALSE,...)
 {
+    if(!inherits(x,"multiscan"))
+        stop("This is not a \'multiscan\' object")
     m<-dim(x$data)[2]
-    ordmu<-order(x$mu)
-    colmax<-apply(x$data,2,max)
-    ymax<-max(colmax/x$beta)
-    xlab<-expression(paste("Estimated gene expression ",(hat(mu)[i]),sep=""))
-    ylab<-expression(paste("Rescaled intensities ",(y[ij]/hat(beta)[j]),sep=""))
-    par(mar=c(5, 5, 4, 2)+ 0.1)
-    plot(x$mu,x$data[,1]/x$beta[1],ylim=c(0,ymax),type="n", xlab=xlab,ylab=ylab)
+   
+    ## Plot the fitted model
+    ## -----------------------------------------------------------------------
+
+    if (!residual){
+        ordmu<-order(x$mu)
+        colmax<-apply(x$data,2,max)
+        ymax<-max(colmax/x$beta)
+        xlab<-expression(paste("Estimated gene expression ",(hat(mu)[i]),sep=""))
+        ylab<-expression(paste("Rescaled intensities ",(y[ij]/hat(beta)[j]),sep=""))
+        par(mar=c(5, 5, 4, 2)+ 0.1)
+        plot(x$mu,x$data[,1]/x$beta[1],ylim=c(0,ymax),type="n", xlab=xlab,ylab=ylab,...)
     
-    for (j in 1:m){
-        points(x$mu,x$data[,j]/x$beta[j], pch=j,col=j)
-        lines(x$mu[ordmu],x$fitted[,j][ordmu]/x$beta[j],lty=3,col=j)
+        for (j in 1:m){
+            points(x$mu,x$data[,j]/x$beta[j], pch=j,col=j)
+            lines(x$mu[ordmu],x$fitted[,j][ordmu]/x$beta[j],lty=2,col=j)
+        }
+        legend(0,0.9*ymax, colnames(x$data),pch=c(1:m),col=c(1:m),lty=rep(2,m))
     }
-    legend(0,0.9*ymax, colnames(x$data),pch=c(1:m),col=c(1:m),lty=rep(3,m))
-    
+
+    ## Residual plot
+    ## -----------------------------------------------------------------------
+    if (residual)
+    {
+        sdres<-x$sdres
+        mu<-x$mu
+        for (i in 1:m){
+            if(i==2)op<-par(ask = prod(par("mfcol"))<m && dev.interactive())
+            plot(rank(mu), sdres[,i], xlab="Rank of estimated gene expression", 
+                 ylab="Standardised residuals",main=colnames(x$data)[i], cex=0.8,...)
+            abline(h=0, col="green")
+            abline(h=-12.71, col="blue", lty=2)
+            abline(h=12.71, col="blue", lty=2)
+        }
+        par(op)
+    }
 }
 
 ## ---------------------------------------------------------------------------
