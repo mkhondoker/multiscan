@@ -36,8 +36,8 @@ The number of rows (\code{n}) is equal to the number of spots/probes on the arra
  probes on the array  are treated as individual spots.}
  
  \item{initial}{A vector of length \code{m+2} to be used as initial values for 
- the scanning effects $(\beta_2,\cdots, \beta_m)$ and scale 
- $(\sigma_1, \sigma_2, \nu)$  parameters. If it is \code{NULL} (default), the 
+ the scanning effects \eqn{(\beta_2, \cdots, \beta_m)} and scale 
+ \eqn{(\sigma_1, \sigma_2, \nu)}  parameters. If it is \code{NULL} (default), the 
  initial values are determined from the \code{data}.}
  
  \item{na.rm}{Logical. Should missing values be removed? Defaults to \code{TRUE}.}
@@ -47,14 +47,13 @@ The number of rows (\code{n}) is equal to the number of spots/probes on the arra
  
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  
- 
 }
 \details{
   The function implements the method of Khondoker \emph{et. al.} (2006) 
   for combining multiple laser scans of microarrays. This function is 
   computationally slow and memory-intensive. That is due to the nested
   iteration loops of the numerical optimization of the likelihood
-  function involving a large number ($n+m+2$) of parameters. The 
+  function involving a large number (\eqn{n+m+2}) of parameters. The 
   optimization uses an alternating algorithm with the Nelder-Mead
   simplex method (Nelder and Mead, 1965) in the inner loops. The function \code{multiscan}
   directly uses the C function \code{nmmin}, the internal code used in the 
@@ -104,7 +103,7 @@ The number of rows (\code{n}) is equal to the number of spots/probes on the arra
   the scanning effects, the first component fixed at \code{1}.}
   
   \item{scale}{A vector of length \code{3} containing the maximum likelihood estimates of 
-  the scale parameters $\sigma_1, \sigma_2, \mbox{and} \nu$.}
+  the scale parameters \eqn{\sigma_1, \sigma_2, \mbox{and} \nu}.}
   
   \item{mu}{A vector of length \code{n} containing the estimated gene expressions.}
   \item{data}{A matrix of the input data with columns rearranged in order of scanner's sensitivity.}
@@ -163,21 +162,21 @@ library(multiscan)
 
 ## load the murine data set included in multiscan package
 data(murine)
-murine[1:10,] ## see first few rows of data
+murine[1:10, ] ## see first few rows of data
 
 ## fit the model on murine data with default options
-fit<-multiscan(murine)
+fit <- multiscan(murine)
 fit
 
 ## plot the fitted model
 plot(fit)
 
 ## get the estimated gene expressions
-gene.exprs<-fit$mu
+gene.exprs <- fit$mu
 
 ## see more details as iteration progresses
 
-fit1<-multiscan(murine, verbose = TRUE)
+fit1 <- multiscan(murine, verbose = TRUE)
 fit1
 
 }
